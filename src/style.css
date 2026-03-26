@@ -4,7 +4,7 @@
 
 body {
   margin: 0;
-  font-family: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
-  background: radial-gradient(circle at top, #1a2550, #0b1024 58%);
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  background: var(--td-bg-color-page, #f3f3f3);
   min-height: 100vh;
 }
