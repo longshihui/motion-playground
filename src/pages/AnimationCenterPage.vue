@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { animationCategories, animations } from "../data/animations";
@@ -34,7 +34,7 @@ const currentTitle = computed(() => {
   return current?.name || "动效中心";
 });
 
-const onMenuChange = (value) => {
+const onMenuChange = (value: string | number) => {
   router.push(`/animation/${value}`);
   drawerVisible.value = false;
 };

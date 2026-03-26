@@ -1,10 +1,7 @@
-<script setup>
-defineProps({
-  active: {
-    type: Boolean,
-    default: false,
-  },
-});
+<script setup lang="ts">
+defineProps<{
+  active: boolean;
+}>();
 </script>
 
 <template>

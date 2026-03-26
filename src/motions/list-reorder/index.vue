@@ -1,10 +1,10 @@
-<script setup>
-defineProps({
-  items: {
-    type: Array,
-    default: () => [],
-  },
-});
+<script setup lang="ts">
+defineProps<{
+  items: Array<{
+    id: number;
+    label: string;
+  }>;
+}>();
 </script>
 
 <template>

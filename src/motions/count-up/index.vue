@@ -1,8 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 
 const value = ref(0);
-let timer = null;
+let timer: ReturnType<typeof setInterval> | undefined;
 
 onMounted(() => {
   timer = setInterval(() => {
@@ -14,7 +14,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (timer) {
+  if (timer !== undefined) {
     clearInterval(timer);
   }
 });

@@ -1,14 +1,16 @@
-<script setup>
-import { computed, defineAsyncComponent } from "vue";
+<script setup lang="ts">
+import { computed, defineAsyncComponent, type Component } from "vue";
 import { useRoute } from "vue-router";
 import CodeSnippetCard from "../components/CodeSnippetCard.vue";
 import { findAnimationById } from "../data/animations";
 
 const route = useRoute();
 
-const currentAnimation = computed(() => findAnimationById(String(route.params.id || "")));
+const currentAnimation = computed(() =>
+  findAnimationById(String(route.params.id || "")),
+);
 
-const previewComponent = computed(() => {
+const previewComponent = computed<Component | null>(() => {
   if (!currentAnimation.value?.componentLoader) {
     return null;
   }
@@ -35,7 +37,11 @@ const previewComponent = computed(() => {
 
     <t-card title="b. 业务场景">
       <div class="case-grid">
-        <article v-for="item in currentAnimation.businessCases" :key="item.title" class="case-item">
+        <article
+          v-for="item in currentAnimation.businessCases"
+          :key="item.title"
+          class="case-item"
+        >
           <img :src="item.image" :alt="item.alt" loading="lazy" />
           <h3>{{ item.title }}</h3>
           <p>{{ item.summary }}</p>
@@ -44,12 +50,29 @@ const previewComponent = computed(() => {
     </t-card>
 
     <t-space direction="vertical" size="16" fill>
-      <CodeSnippetCard title="c. 开发代码 - template" language="xml" :code="currentAnimation.codeSnippet.template" />
-      <CodeSnippetCard title="c. 开发代码 - js" language="javascript" :code="currentAnimation.codeSnippet.script" />
-      <CodeSnippetCard title="c. 开发代码 - style" language="css" :code="currentAnimation.codeSnippet.style" />
+      <CodeSnippetCard
+        title="c. 开发代码 - template"
+        language="xml"
+        :code="currentAnimation.codeSnippet.template"
+      />
+      <CodeSnippetCard
+        title="c. 开发代码 - ts"
+        language="typescript"
+        :code="currentAnimation.codeSnippet.script"
+      />
+      <CodeSnippetCard
+        title="c. 开发代码 - style"
+        language="css"
+        :code="currentAnimation.codeSnippet.style"
+      />
       <t-card title="关键动效属性">
         <t-space size="8" wrap>
-          <t-tag v-for="item in currentAnimation.keyMotionProps" :key="item" variant="light">{{ item }}</t-tag>
+          <t-tag
+            v-for="item in currentAnimation.keyMotionProps"
+            :key="item"
+            variant="light"
+            >{{ item }}</t-tag
+          >
         </t-space>
       </t-card>
     </t-space>
@@ -58,7 +81,10 @@ const previewComponent = computed(() => {
       <t-space direction="vertical" size="10" fill>
         <p>{{ currentAnimation.developmentMode.reusable }}</p>
         <ul class="facts">
-          <li v-for="item in currentAnimation.developmentMode.props" :key="item">
+          <li
+            v-for="item in currentAnimation.developmentMode.props"
+            :key="item"
+          >
             <span>Props 设计</span>
             <strong>{{ item }}</strong>
           </li>

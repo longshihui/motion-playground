@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { animationCategories, animations } from "../data/animations";
 </script>
 

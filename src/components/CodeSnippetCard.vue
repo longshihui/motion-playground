@@ -1,35 +1,28 @@
-<script setup>
+<script setup lang="ts">
 import hljs from "highlight.js/lib/core";
 import css from "highlight.js/lib/languages/css";
 import javascript from "highlight.js/lib/languages/javascript";
+import typescript from "highlight.js/lib/languages/typescript";
 import xml from "highlight.js/lib/languages/xml";
 import { computed, ref } from "vue";
 
 hljs.registerLanguage("xml", xml);
 hljs.registerLanguage("javascript", javascript);
+hljs.registerLanguage("typescript", typescript);
 hljs.registerLanguage("css", css);
 
-const props = defineProps({
-  title: {
-    type: String,
-    required: true,
-  },
-  code: {
-    type: String,
-    required: true,
-  },
-  language: {
-    type: String,
-    required: true,
-  },
-});
+const props = defineProps<{
+  title: string;
+  code: string;
+  language: string;
+}>();
 
 const copyText = ref("复制代码");
 
 const highlighted = computed(() => {
   try {
     return hljs.highlight(props.code, { language: props.language }).value;
-  } catch (error) {
+  } catch {
     return hljs.highlightAuto(props.code).value;
   }
 });
@@ -49,8 +42,19 @@ const onCopy = async () => {
   <t-card :title="title">
     <t-space direction="vertical" size="10" fill>
       <div class="copy-row">
-        <t-button theme="primary" variant="outline" size="small" data-testid="copy-button" @click="onCopy">复制代码</t-button>
-        <t-typography-text :copyable="{ text: code, onCopy }" data-testid="copy-control">{{ copyText }}</t-typography-text>
+        <t-button
+          theme="primary"
+          variant="outline"
+          size="small"
+          data-testid="copy-button"
+          @click="onCopy"
+          >复制代码</t-button
+        >
+        <t-typography-text
+          :copyable="{ text: code, onCopy }"
+          data-testid="copy-control"
+          >{{ copyText }}</t-typography-text
+        >
       </div>
       <pre class="code-block"><code v-html="highlighted"></code></pre>
     </t-space>

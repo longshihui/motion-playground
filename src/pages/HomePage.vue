@@ -1,5 +1,5 @@
-<script setup>
-import { computed, ref } from "vue";
+<script setup lang="ts">
+import { computed, ref, type Component } from "vue";
 import FadeMotion from "../motions/fade/index.vue";
 import SlideUpMotion from "../motions/slide-up/index.vue";
 import ScaleInMotion from "../motions/scale-in/index.vue";
@@ -42,7 +42,18 @@ const showToast = ref(true);
 const showPanel = ref(false);
 const compactList = ref(false);
 
-const items = ref([
+type InteractiveItem = {
+  id: number;
+  label: string;
+};
+
+type MotionDefinition = {
+  name: string;
+  scene: string;
+  component: Component;
+};
+
+const items = ref<InteractiveItem[]>([
   { id: 1, label: "登录成功" },
   { id: 2, label: "订单已支付" },
   { id: 3, label: "已开始下载" },
@@ -51,7 +62,9 @@ const items = ref([
 
 const orderedItems = computed(() => {
   if (compactList.value) {
-    return [items.value[2], items.value[0], items.value[3]];
+    return [items.value[2], items.value[0], items.value[3]].filter(
+      (item): item is InteractiveItem => Boolean(item),
+    );
   }
   return items.value;
 });
@@ -65,7 +78,7 @@ const activeInteractiveCount = computed(() => {
   ].filter(Boolean).length;
 });
 
-const motionList = [
+const motionList: MotionDefinition[] = [
   { name: "淡入淡出（Fade In/Out）", scene: "页面初次渲染、列表切换、提示信息出现", component: FadeMotion },
   { name: "滑入（Slide Up）", scene: "卡片逐条出现、滚动触发内容登场", component: SlideUpMotion },
   { name: "缩放入场（Scale In）", scene: "弹层、图片预览、重点信息聚焦", component: ScaleInMotion },
