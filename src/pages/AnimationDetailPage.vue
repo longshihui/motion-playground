@@ -1,13 +1,34 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, type Component } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  ref,
+  watch,
+  type Component,
+} from "vue";
 import { useRoute } from "vue-router";
 import CodeSnippetCard from "../components/CodeSnippetCard.vue";
-import { findAnimationById } from "../data/animations";
+import { findAnimationById, type AnimationItem } from "../data/animations";
 
 const route = useRoute();
 
-const currentAnimation = computed(() =>
-  findAnimationById(String(route.params.id || "")),
+const currentAnimation = ref<AnimationItem | null>(null);
+
+const loadCurrentAnimation = async () => {
+  currentAnimation.value =
+    (await findAnimationById(String(route.params.id || ""))) ?? null;
+};
+
+onMounted(() => {
+  void loadCurrentAnimation();
+});
+
+watch(
+  () => route.params.id,
+  () => {
+    void loadCurrentAnimation();
+  },
 );
 
 const previewComponent = computed<Component | null>(() => {
@@ -16,12 +37,20 @@ const previewComponent = computed<Component | null>(() => {
   }
   return defineAsyncComponent(currentAnimation.value.componentLoader);
 });
+
+const descriptionComponent = computed<Component | null>(() => {
+  if (!currentAnimation.value?.descriptionLoader) {
+    return null;
+  }
+  return defineAsyncComponent(currentAnimation.value.descriptionLoader);
+});
 </script>
 
 <template>
   <t-space v-if="currentAnimation" direction="vertical" size="16" fill>
     <t-card title="a. 动效说明">
       <t-space direction="vertical" size="10" fill>
+        <component :is="descriptionComponent" v-if="descriptionComponent" />
         <p>{{ currentAnimation.description.principle }}</p>
         <ul class="facts">
           <li v-for="fact in currentAnimation.quickFacts" :key="fact.label">

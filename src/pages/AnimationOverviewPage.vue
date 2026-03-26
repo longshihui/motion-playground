@@ -1,12 +1,22 @@
 <script setup lang="ts">
-import { animationCategories, animations } from "../data/animations";
+import { computed, onMounted, ref } from "vue";
+import { loadAnimations } from "../data/animations";
+
+const animations = ref<Awaited<ReturnType<typeof loadAnimations>>>([]);
+const categoryCount = computed(
+  () => new Set(animations.value.map((item) => item.category)).size,
+);
+
+onMounted(async () => {
+  animations.value = await loadAnimations();
+});
 </script>
 
 <template>
   <t-space direction="vertical" size="16" fill>
     <t-card title="动效列表页">
       <p>请选择左侧导航中的动效。每个动效均提供说明、业务场景、开发代码与复用模式。</p>
-      <p>当前共收录 {{ animations.length }} 个动效，按 {{ animationCategories.length }} 个分类管理。</p>
+      <p>当前共收录 {{ animations.length }} 个动效，按 {{ categoryCount }} 个分类管理。</p>
     </t-card>
     <t-card title="使用方式">
       <t-space direction="vertical" size="8">

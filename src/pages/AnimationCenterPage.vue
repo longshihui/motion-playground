@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { animationCategories, animations } from "../data/animations";
+import { loadAnimations, type AnimationItem } from "../data/animations";
+import {
+  buildSidebarGroups,
+  HOME_NAV_ITEM,
+  type SidebarGroup,
+} from "../navigation/sidebar";
 
 const route = useRoute();
 const router = useRouter();
 
 const drawerVisible = ref(false);
 const isMobile = ref(false);
+const animations = ref<AnimationItem[]>([]);
+const sidebarGroups = ref<SidebarGroup[]>([]);
 
 const syncViewport = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -18,6 +25,7 @@ const syncViewport = () => {
 
 onMounted(() => {
   syncViewport();
+  void loadSidebarData();
   window.addEventListener("resize", syncViewport);
 });
 
@@ -28,11 +36,16 @@ onBeforeUnmount(() => {
 const currentId = computed(() => String(route.params.id || "home"));
 const currentTitle = computed(() => {
   if (currentId.value === "home") {
-    return "首页";
+    return HOME_NAV_ITEM.name;
   }
-  const current = animations.find((item) => item.id === currentId.value);
+  const current = animations.value.find((item) => item.id === currentId.value);
   return current?.name || "动效中心";
 });
+
+const loadSidebarData = async () => {
+  animations.value = await loadAnimations();
+  sidebarGroups.value = buildSidebarGroups(animations.value);
+};
 
 const onMenuChange = (value: string | number) => {
   router.push(`/animation/${value}`);
@@ -53,15 +66,15 @@ const onMenuChange = (value: string | number) => {
         class="menu"
         @change="onMenuChange"
       >
-        <t-menu-item value="home">
+        <t-menu-item :value="HOME_NAV_ITEM.id">
           <span
             data-testid="nav-item-home"
-            :data-active="String(currentId === 'home')"
-            >首页</span
+            :data-active="String(currentId === HOME_NAV_ITEM.id)"
+            >{{ HOME_NAV_ITEM.name }}</span
           >
         </t-menu-item>
         <t-submenu
-          v-for="group in animationCategories"
+          v-for="group in sidebarGroups"
           :key="group.name"
           :value="group.name"
         >
@@ -81,7 +94,7 @@ const onMenuChange = (value: string | number) => {
       </t-menu>
     </t-aside>
 
-    <t-layout>
+    <t-layout class="main-layout">
       <t-header class="content-header">
         <t-space align="center">
           <t-button
@@ -116,15 +129,15 @@ const onMenuChange = (value: string | number) => {
         class="menu"
         @change="onMenuChange"
       >
-        <t-menu-item value="home">
+        <t-menu-item :value="HOME_NAV_ITEM.id">
           <span
             data-testid="mobile-nav-item-home"
-            :data-active="String(currentId === 'home')"
-            >首页</span
+            :data-active="String(currentId === HOME_NAV_ITEM.id)"
+            >{{ HOME_NAV_ITEM.name }}</span
           >
         </t-menu-item>
         <t-submenu
-          v-for="group in animationCategories"
+          v-for="group in sidebarGroups"
           :key="`mobile-${group.name}`"
           :value="group.name"
         >
@@ -148,14 +161,25 @@ const onMenuChange = (value: string | number) => {
 
 <style scoped>
 .animation-layout {
-  min-height: 100vh;
+  height: 100vh;
   background: var(--td-bg-color-page, #f3f3f3);
 }
 
 .sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 240px;
   border-right: 1px solid var(--td-component-stroke, #e7e7e7);
   background: var(--td-bg-color-container, #fff);
   padding: 20px 14px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.main-layout {
+  margin-left: 240px;
+  min-width: 0;
+  height: 100vh;
 }
 
 .sidebar-head {
@@ -197,7 +221,9 @@ const onMenuChange = (value: string | number) => {
 }
 
 .content-body {
+  flex: 1;
   padding: 20px 24px 26px;
+  overflow-y: auto;
 }
 
 [data-active="true"] {
@@ -211,6 +237,17 @@ const onMenuChange = (value: string | number) => {
 }
 
 @media (max-width: 768px) {
+  .animation-layout {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .main-layout {
+    margin-left: 0;
+    height: auto;
+    min-height: 100vh;
+  }
+
   .content-header {
     padding: 16px;
   }
@@ -222,6 +259,7 @@ const onMenuChange = (value: string | number) => {
 
   .content-body {
     padding: 16px;
+    overflow-y: visible;
   }
 }
 </style>

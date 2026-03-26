@@ -2,14 +2,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 
 jest.mock("../src/data/animations", () => ({
-  animations: [
-    { id: "fade", name: "淡入淡出", category: "入场" },
-    { id: "pulse", name: "呼吸", category: "强调" },
-  ],
-  animationCategories: [
-    { name: "入场", children: [{ id: "fade", name: "淡入淡出" }] },
-    { name: "强调", children: [{ id: "pulse", name: "呼吸" }] },
-  ],
+  loadAnimations: jest.fn().mockResolvedValue([
+    { id: "fade", name: "淡入淡出", category: "入场与退场" },
+    { id: "pulse", name: "呼吸", category: "强调反馈" },
+  ]),
 }));
 
 import AnimationCenterPage from "../src/pages/AnimationCenterPage.vue";
@@ -43,11 +39,18 @@ const mountWithRoute = async (path: string, width = 1280) => {
 
 test("导航高亮逻辑会随路由变化更新", async () => {
   const router = await mountWithRoute("/animation/fade");
-  expect(screen.getByTestId("nav-item-fade")).toHaveAttribute("data-active", "true");
+  await screen.findByTestId("nav-item-fade");
+  expect(screen.getByTestId("nav-item-fade")).toHaveAttribute(
+    "data-active",
+    "true",
+  );
 
   await router.push("/animation/pulse");
   await waitFor(() => {
-    expect(screen.getByTestId("nav-item-pulse")).toHaveAttribute("data-active", "true");
+    expect(screen.getByTestId("nav-item-pulse")).toHaveAttribute(
+      "data-active",
+      "true",
+    );
   });
 });
 
